@@ -1,0 +1,183 @@
+﻿@model NugetViajesSMG.Models.UsuarioCompletoView
+
+<link rel="stylesheet" href="~/css/styleperfil.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<div class="profile-container">
+    <div class="profile-left-section">
+        <div class="additional-data-section">
+            <div class="title-with-back-btn">
+                <h3>Lugares añadidos</h3>
+            </div>
+            <div id="containerlugares" class="lugares-section">
+                <div class="loading-lugares">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <span>Cargando lugares...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-right-section">
+        <div class="profile-header">
+            <div class="profile-avatar">
+                <img src="@Model.AvatarUrl" alt="Avatar" class="avatar-img" />
+            </div>
+            <h2 class="profile-name">@Model.Nombre</h2>
+        </div>
+        <div class="profile-details">
+            <div class="profile-card">
+                <div class="card-content">
+                    <div class="detail-item">
+                        <i class="fas fa-envelope"></i>
+                        <div class="detail-content">
+                            <span class="detail-label">Email</span>
+                            <span class="detail-value">@Model.Email</span>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-route"></i>
+                        <div class="detail-content">
+                            <span class="detail-label">Preferencias de Viaje</span>
+                            <span class="detail-value">@Model.PreferenciaViaje</span>
+                        </div>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.Edad.ToString()))
+                    {
+                        <div class="detail-item">
+                            <i class="fas fa-birthday-cake"></i>
+                            <div class="detail-content">
+                                <span class="detail-label">Edad</span>
+                                <span class="detail-value">@Model.Edad</span>
+                            </div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.Nacionalidad))
+                    {
+                        <div class="detail-item">
+                            <i class="fas fa-flag"></i>
+                            <div class="detail-content">
+                                <span class="detail-label">Nacionalidad</span>
+                                <span class="detail-value">@Model.Nacionalidad</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .profile-action-edit {
+        display: none; /* Eliminar los botones de editar */
+    }
+
+    .profile-right-section {
+        position: relative;
+    }
+
+    /* Estilos para la sección de lugares y el título con el botón */
+    .additional-data-section {
+        margin-top: 20px;
+    }
+
+    /* Contenedor del título y el botón juntos */
+    .title-with-back-btn {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+        /* Estilo para el título */
+        .title-with-back-btn h3 {
+            margin: 0;
+        }
+
+    /* Estilo para el botón de volver */
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        background-color: #007bff;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-size: 16px;
+    }
+
+        .back-btn i {
+            margin-right: 8px;
+        }
+
+    /* Avatar color display */
+    .avatar-color {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 5px;
+        vertical-align: middle;
+    }
+
+    /* Estilos para la sección de lugares (sin sombra) */
+    .lugares-section {
+        background-color: white;
+        border-radius: 10px;
+        padding: 15px;
+        margin-top: 15px;
+        /* Eliminar sombra */
+        box-shadow: none;
+    }
+
+    .loading-lugares {
+        text-align: center;
+        padding: 20px;
+        color: #666;
+    }
+
+        .loading-lugares i {
+            margin-right: 8px;
+        }
+
+    /* Mensaje para cuando no hay lugares */
+    .no-lugares {
+        text-align: center;
+        padding: 25px 15px;
+        color: #666;
+    }
+
+        .no-lugares i {
+            font-size: 32px;
+            color: #ccc;
+            margin-bottom: 10px;
+        }
+</style>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            var idUsuario = "@Model.IdUsuario";
+            var request = "/Usuarios/_LugaresUsuario?idUsuario=" + idUsuario;
+
+            // Cargar los lugares añadidos por el usuario de forma automática
+            $("#containerlugares").load(request, function(response, status, xhr) {
+                if (status == "error") {
+                    $("#containerlugares").html(`
+                        <div class="no-lugares">
+                            <i class="fas fa-map-marker-slash"></i>
+                            <p>No se pudieron cargar los lugares</p>
+                        </div>
+                    `);
+                } else if (response.trim() === "" || response.includes("No hay lugares")) {
+                    $("#containerlugares").html(`
+                        <div class="no-lugares">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <p>Este usuario no ha añadido lugares todavía</p>
+                        </div>
+                    `);
+                }
+            });
+        });
+    </script>
+}

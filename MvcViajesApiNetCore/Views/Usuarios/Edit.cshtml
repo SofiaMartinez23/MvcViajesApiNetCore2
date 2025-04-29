@@ -1,0 +1,346 @@
+﻿@model UsuarioCompletoView
+@{
+    ViewData["Title"] = "Editar Perfil";
+    string defaultAvatarUrl = "/images/default-avatar.png";
+}
+
+<style>
+    :root {
+        --primary-color: #2c6e49;
+        --secondary-color: #4d908e;
+        --text-color: #333;
+        --light-bg: #f8f9fa;
+        --border-radius: 10px;
+        --box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f5f5f5;
+        color: var(--text-color);
+        line-height: 1.6;
+    }
+
+    .container {
+        max-width: 1000px;
+        padding: 20px;
+    }
+
+    .profile-card {
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        overflow: hidden;
+        margin-bottom: 30px;
+    }
+
+    .profile-header {
+        position: relative;
+        padding: 25px;
+        background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+        color: white;
+        text-align: center;
+    }
+
+    .profile-header h1 {
+        margin: 0;
+        font-weight: 700;
+        font-size: 2.2rem;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+    }
+
+    .profile-content {
+        padding: 25px;
+    }
+
+    .btn-back {
+        color: white;
+        background-color: rgba(255, 255, 255, 0.2);
+        border: 2px solid white;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        left: 20px;
+        top: 20px;
+        transition: all 0.3s;
+        font-size: 1.2rem;
+        text-decoration: none;
+    }
+
+    .btn-back:hover {
+        background-color: white;
+        color: var(--primary-color);
+        transform: scale(1.1);
+    }
+
+    .form-label {
+        color: var(--primary-color);
+        font-weight: 600;
+        margin-bottom: 8px;
+        font-size: 1rem;
+    }
+
+    .form-control, .form-select {
+        border-radius: var(--border-radius);
+        border: 1px solid #ced4da;
+        padding: 10px 15px;
+        transition: all 0.3s;
+        font-size: 0.95rem;
+    }
+
+    .form-control:focus, .form-select:focus {
+        box-shadow: 0 0 0 0.2rem rgba(44, 110, 73, 0.25);
+        border-color: var(--primary-color);
+    }
+
+    .btn-submit {
+        background-color: var(--primary-color);
+        border: none;
+        color: white;
+        padding: 12px 30px;
+        border-radius: var(--border-radius);
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        width: 100%;
+    }
+
+    .btn-submit:hover {
+        background-color: #245a3c;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .avatar-preview-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .avatar-preview {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        object-fit: cover;
+        border: 4px solid white;
+        margin-bottom: 10px;
+        transition: all 0.3s;
+    }
+
+    .avatar-preview:hover {
+        transform: scale(1.05);
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+
+    .input-icon {
+        position: absolute;
+        right: 15px;
+        top: 38px;
+        color: var(--secondary-color);
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+        color: #721c24;
+        border-radius: var(--border-radius);
+        padding: 12px 20px;
+        margin-bottom: 20px;
+    }
+
+    /* Ocultar los mensajes de error personalizados */
+    .text-danger, .invalid-feedback, .field-validation-error {
+        display: none !important;
+    }
+
+    /* Estilo para indicar campo requerido con asterisco */
+    .required-field::after {
+        content: " *";
+        color: #dc3545;
+        font-weight: bold;
+    }
+
+    /* Estilo para campos inválidos */
+    .is-invalid {
+        border-color: #dc3545;
+        background-color: #f8d7da;
+    }
+</style>
+
+<div class="container">
+    <div class="profile-card">
+        <div class="profile-header">
+            <a asp-action="Perfil" asp-route-id="@Model.IdUsuario" class="btn-back">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <h1>Editar mi Perfil</h1>
+        </div>
+
+        <div class="profile-content">
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    @ViewBag.Error
+                </div>
+            }
+
+            <form method="post" asp-action="Edit" id="editProfileForm">
+                <input type="hidden" asp-for="IdUsuario" />
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="avatar-preview-container">
+                            <img id="preview-avatar" src="@(string.IsNullOrEmpty(Model.AvatarUrl) ? defaultAvatarUrl : Model.AvatarUrl)"
+                                 alt="Avatar Preview" class="avatar-preview"
+                                 onerror="this.src='@defaultAvatarUrl'">
+
+                            <div class="avatar-color-preview"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="Nombre" class="form-label required-field">Nombre</label>
+                                    <input asp-for="Nombre" class="form-control" placeholder="Tu nombre" required />
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="Email" class="form-label required-field">Correo electrónico</label>
+                                    <input asp-for="Email" class="form-control" type="email" placeholder="ejemplo@correo.com" required />
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="Clave" class="form-label required-field">Contraseña</label>
+                                    <input asp-for="Clave" class="form-control" type="password" placeholder="Contraseña" required />
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="ConfirmarClave" class="form-label required-field">Confirmar Contraseña</label>
+                                    <input asp-for="ConfirmarClave" class="form-control" type="password" placeholder="Confirma tu contraseña" required />
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="PreferenciaViaje" class="form-label required-field">Preferencia de Viaje</label>
+                                    <select asp-for="PreferenciaViaje" class="form-select" required>
+                                        <option value="">Selecciona tu preferencia...</option>
+                                        <option value="Turístico">Turístico</option>
+                                        <option value="Restaurante">Restaurante</option>
+                                        <option value="Deporte">Deporte</option>
+                                        <option value="Deporte">Deporte</option>
+                                        <option value="Cultura">Cultura</option>
+                                        <option value="Naturaleza">Naturaleza</option>
+                                        <option value="Comercial">Comercial</option>
+                                        <option value="Educativo">Educativo</option>
+                                        <option value="Religioso">Religioso</option>
+                                        <option value="Salud">Salud</option>
+                                        <option value="Empresarial">Empresarial</option>
+                                        <option value="Transporte">Transporte</option>
+                                        <option value="Entretenimiento">Entretenimiento</option>
+                                        <option value="Aventura">Aventura</option>
+                                        <option value="Residencial">Residencial</option>
+                                        <option value="Cívico">Cívico</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="AvatarUrl" class="form-label required-field">URL de Avatar</label>
+                                    <input asp-for="AvatarUrl" class="form-control" placeholder="URL de imagen para avatar" required />
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="Edad" class="form-label required-field">Edad</label>
+                                    <input asp-for="Edad" class="form-control" type="number" placeholder="Tu edad" required />
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="Nacionalidad" class="form-label required-field">Nacionalidad</label>
+                                    <input asp-for="Nacionalidad" class="form-control" placeholder="Tu nacionalidad" required />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mt-4">
+                            <button type="submit" class="btn-submit">
+                                <i class="fas fa-save me-2"></i> Guardar cambios
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $("#AvatarUrl").on("change", function() {
+                var url = $(this).val();
+                if (url) {
+                    $("#preview-avatar").attr("src", url);
+                    $(".avatar-preview").css("background-color", "transparent");
+                }
+            });
+
+            $("#ColorAvatar").on("input", function() {
+                var color = $(this).val();
+                $(".avatar-preview").css("background-color", color);
+
+                if (!$("#AvatarUrl").val()) {
+                    $("#preview-avatar").attr("src", "/images/default-avatar.png");
+                }
+
+                $("#HiddenColorAvatar").val(color);
+            });
+
+            if (!$("#AvatarUrl").val()) {
+                $(".avatar-preview").css("background-color", $("#ColorAvatar").val());
+                $("#preview-avatar").attr("src", "/images/default-avatar.png");
+            }
+
+            // Validar campos obligatorios antes de enviar el formulario
+            $("#editProfileForm").submit(function(event) {
+                var isValid = true;
+
+                // Comprobamos cada campo requerido
+                $(this).find("input[required], select[required]").each(function() {
+                    if ($(this).val().trim() === "") {
+                        isValid = false;
+                        $(this).addClass("is-invalid"); // Agregar clase de error
+                        $(this).next(".invalid-feedback").remove(); // Eliminar feedback antiguo
+                        $(this).after('<div class="invalid-feedback">Este campo es obligatorio</div>'); // Mostrar mensaje de error
+                    } else {
+                        $(this).removeClass("is-invalid"); // Eliminar clase de error si no está vacío
+                        $(this).next(".invalid-feedback").remove(); // Eliminar mensaje de error
+                    }
+                });
+
+                if (!isValid) {
+                    event.preventDefault(); // Si hay un campo vacío, no enviamos el formulario
+                }
+            });
+        });
+    </script>
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

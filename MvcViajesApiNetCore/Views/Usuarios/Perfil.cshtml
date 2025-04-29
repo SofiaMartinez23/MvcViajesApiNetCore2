@@ -1,0 +1,268 @@
+﻿@model NugetViajesSMG.Models.UsuarioCompletoView
+
+<link rel="stylesheet" href="~/css/styleperfil.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<div class="profile-container">
+    <div class="profile-left-section">
+        <div class="additional-data-section">
+            <h3>Información Adicional</h3>
+            <div class="button-group">
+                <button id="lugaresInsertadosBtn" class="active">Mis Lugares</button>
+                <button id="lugaresFavoritosBtn">Favoritos</button>
+            </div>
+            <div id="containerlugares" class="m-3">
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-right-section">
+        <div class="profile-action-edit">
+            <a asp-controller="Usuarios" asp-action="Edit" asp-route-idUsuario="@Model.IdUsuario" class="edit-profile-btn" title="Edit perfil">
+                <i class="fas fa-pencil-alt"></i>
+            </a>
+        </div>
+
+        <div class="profile-header">
+            <div class="profile-avatar">
+                <img src="@Model.AvatarUrl" alt="Avatar" class="avatar-img">
+            </div>
+            <h2 class="profile-name">@Model.Nombre</h2>
+        </div>
+
+        <div class="profile-details">
+            <div class="profile-card">
+                <div class="card-content">
+                    <div class="detail-item">
+                        <i class="fas fa-envelope"></i>
+                        <div class="detail-content">
+                            <span class="detail-label">Email</span>
+                            <span class="detail-value">@Model.Email</span>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-route"></i>
+                        <div class="detail-content">
+                            <span class="detail-label">Preferencias de Viaje</span>
+                            <span class="detail-value">@Model.PreferenciaViaje</span>
+                        </div>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.Edad.ToString()))
+                    {
+                        <div class="detail-item">
+                            <i class="fas fa-birthday-cake"></i>
+                            <div class="detail-content">
+                                <span class="detail-label">Edad</span>
+                                <span class="detail-value">@Model.Edad</span>
+                            </div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.Nacionalidad))
+                    {
+                        <div class="detail-item">
+                            <i class="fas fa-flag"></i>
+                            <div class="detail-content">
+                                <span class="detail-label">Nacionalidad</span>
+                                <span class="detail-value">@Model.Nacionalidad</span>
+                            </div>
+                        </div>
+                    }
+                    <div class="detail-item">
+                        <i class="fas fa-map-pin"></i>
+                        <div class="detail-content">
+                            <span class="detail-label">Lugares Creados</span>
+                            <span class="detail-value" id="lugaresCreadosCount">@ViewBag.LugaresCreadosCount</span>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-heart"></i>
+                        <div class="detail-content">
+                            <span class="detail-label">Lugares Favoritos</span>
+                            <span class="detail-value" id="lugaresFavoritosCount">@ViewBag.LugaresFavoritosCount</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="action-section">
+            <a class="btn btn-primary m-3" asp-controller="Lugares" asp-action="Create">
+                <i class="fas fa-plus-circle"></i> Crear Lugar
+            </a>
+        </div>
+        <div id="containerseguidores" class="seguidores-container m-3">
+        </div>
+    </div>
+</div>
+
+<style>
+    .seguidores-container {
+        background-color: white; 
+        padding: 15px;
+        max-height: 400px; 
+        overflow-y: auto; 
+        border-radius: 8px; 
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+    }
+    .seguidor-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background-color: #f9f9f9; 
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 12px; 
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+    }
+
+        .seguidor-item p {
+            margin: 0;
+            padding: 0;
+            flex-grow: 1;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .seguidor-item .btn-profile {
+            padding: 6px 12px;
+            background-color: #007bff;
+            color: white;
+            font-size: 14px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+            .seguidor-item .btn-profile:hover {
+                background-color: #0056b3; 
+            }
+
+        .seguidor-item img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+    .button-group {
+        display: flex;
+        gap: 15px; 
+        margin-bottom: 15px;
+    }
+
+        .button-group button {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            background-color: #f0f0f0;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s ease;
+            border-radius: 25px;
+            flex: 1;
+        }
+
+            .button-group button.active {
+                background-color: #007bff;
+                color: white;
+                border-color: #007bff;
+            }
+
+            .button-group button:hover {
+                background-color: #e0e0e0;
+                transform: scale(1.05);
+            }
+
+    .profile-action-edit {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        z-index: 10;
+    }
+
+    .edit-profile-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #007bff;
+        color: white;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+        .edit-profile-btn:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            color: white;
+        }
+
+        .edit-profile-btn i {
+            font-size: 18px;
+        }
+
+    .profile-right-section {
+        position: relative;
+    }
+
+    .avatar-color {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    .seguidores-section {
+        margin-top: 20px;
+    }
+
+    .seguidor-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .seguidor-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 10px;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            var idUsuario = "@Model.IdUsuario";
+            var request = "/Usuarios/_Lugares?idUsuario=" + idUsuario;
+            var request2 = "/Usuarios/_Seguidos?idusuario=" + idUsuario;
+
+            $("#containerlugares").load(request, function() {
+                actualizarContadorLugares();
+            });
+            $("#containerseguidores").load(request2); 
+
+
+            $("#lugaresInsertadosBtn").click(function() {
+                $(this).addClass("active").siblings().removeClass("active");
+                request = "/Usuarios/_Lugares?idUsuario=" + idUsuario;
+                $("#containerlugares").load(request, function() {
+                    actualizarContadorLugares();
+                });
+            });
+
+            $("#lugaresFavoritosBtn").click(function() {
+                $(this).addClass("active").siblings().removeClass("active");
+                request = "/Usuarios/_Favoritos?idUsuario=" + idUsuario;
+                $("#containerlugares").load(request, function() {
+                    // If favoritos don't contribute to the created count, no update needed here
+                });
+            });
+
+
+       
+        });
+    </script>
+}

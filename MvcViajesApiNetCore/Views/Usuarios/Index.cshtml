@@ -1,0 +1,309 @@
+﻿@model List<NugetViajesSMG.Models.UsuarioCompletoView>
+
+@{
+    ViewData["Title"] = "Usuarios";
+    Layout = "_Layout";
+    string defaultImageUrl = "https://cdn3d.iconscout.com/3d/premium/thumb/chico-avatar-6299533-5187865.png?f=webp";
+    var yaSigue = TempData["YaSigue"] as bool?;
+    var seguido = TempData["Seguido"] as bool?;
+    var nombreSeguido = TempData["NombreSeguido"] as string;
+}
+<div class="container mt-5">
+    <!-- Header Section -->
+    <div class="header-section mb-5">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h1 class="fw-bold text-primary">Usuarios de Interes</h1>
+                <p class="text-muted">Sigue a gente nueva y ve los lugares que añade mas facilmente.</p>
+            </div>
+            <div class="col-md-6">
+                <div class="search-container">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="fas fa-search text-muted"></i>
+                        </span>
+                        <input type="text" class="form-control border-start-0 shadow-none"
+                               placeholder="Buscar destinos..." id="searchInput">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<div class="container mt-5">
+    <div class="card border-0 shadow-sm mb-5">
+        <div class="card-body py-4">
+            <div class="row g-4" id="usersContainer">
+                @if (Model != null && Model.Any())
+                {
+                    @foreach (var usuario in Model)
+                    {
+                        <div class="col-md-6 col-lg-4 col-xl-3 usuario-item">
+                            <div class="card h-100 border rounded-3 shadow-sm hover-card user-card-style">
+                                <div class="card-body d-flex flex-column align-items-center position-relative">
+                                    <div class="avatar-wrapper rounded-circle overflow-hidden mb-3 position-relative" style="width: 90px; height: 90px; border: 3px solid #333;">
+                                        <img src="@(string.IsNullOrEmpty(usuario.AvatarUrl) ? defaultImageUrl : usuario.AvatarUrl)"
+                                             alt="@usuario.Nombre" class="w-100 h-100 object-fit-cover"
+                                             onerror="this.src='@defaultImageUrl';" />
+                                    </div>
+                                    <h5 class="card-title mt-2 mb-1 fw-bold text-center text-dark">@usuario.Nombre</h5>
+                                    <p class="card-subtitle mb-2 text-muted text-center">
+                                        <i class="fas fa-globe-americas me-1"></i>@usuario.Nacionalidad
+                                    </p>
+
+                                    <div class="d-flex justify-content-center align-items-center mt-auto">
+                                        <a asp-controller="Usuarios" asp-action="Details"
+                                           asp-route-idusuario="@usuario.IdUsuario"
+                                           class="btn btn-outline-dark rounded-pill me-2 btn-sm">
+                                            <i class="fas fa-user me-1"></i>Perfil
+                                        </a>
+                                        @if (ViewBag.IdsSeguidos != null && ViewBag.IdsSeguidos.Contains(usuario.IdUsuario))
+                                        {
+                                            <!-- Mostrar formulario para "Dejar de seguir" -->
+                                            <form asp-controller="Usuarios" asp-action="DeleteSeguidor" method="post" class="ms-2">
+                                                <input type="hidden" name="seguidoId" value="@usuario.IdUsuario" />
+                                                <button type="submit" class="btn btn-outline-danger rounded-pill follow-btn btn-sm">
+                                                    <i class="fas fa-user-check"></i>
+                                                </button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <!-- Mostrar formulario para "Seguir" -->
+                                            <form asp-controller="Usuarios" asp-action="Seguir" method="post" class="ms-2">
+                                                <input type="hidden" name="seguidoId" value="@usuario.IdUsuario" />
+                                                <button type="submit" class="btn btn-outline-dark rounded-pill follow-btn btn-sm">
+                                                    <i class="fas fa-user-plus"></i>
+                                                </button>
+                                            </form>
+                                        }
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="col-12 text-center">
+                        <p class="text-muted">No se encontraron usuarios.</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+   @*  <!-- Mensajes de feedback con TempData -->
+    @if (yaSigue.HasValue && yaSigue.Value)
+    {
+        <div class="alert alert-info">
+            Ya sigues a @nombreSeguido.
+        </div>
+    }
+    @if (seguido.HasValue && seguido.Value)
+    {
+        <div class="alert alert-success">
+            Ahora sigues a @nombreSeguido.
+        </div>
+    } *@
+</div>
+
+
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .header-section {
+        position: relative;
+    }
+
+        .usuario-item {
+            transition: transform 0.3s ease; /* Para animar el movimiento */
+        }
+
+            .usuario-item.hidden {
+                order: 1; /* Las tarjetas que no coinciden tendrán un order mayor */
+            }
+
+            .usuario-item.visible {
+                order: -1; /* Las tarjetas que coinciden se moverán al principio */
+            }
+
+    .search-container {
+        max-width: 400px;
+        margin-left: auto;
+    }
+
+    .user-card-style {
+        border: 1px solid #444 !important;
+        overflow: hidden;
+        min-height: 300px;
+    }
+
+    .hover-card {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+
+        .hover-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+
+    .avatar-curve {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 70px;
+        background-color: black;
+        clip-path: polygon(0 0, 100% 0, 50% 100%);
+        z-index: 0;
+    }
+
+    .avatar-wrapper {
+        border: 3px solid #333 !important;
+        position: relative;
+        z-index: 1;
+        margin-top: 40px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .avatar-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to bottom right, rgba(0,0,0,0.1) 30%, transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    .card-title {
+        font-size: 1.1rem;
+        margin-top: 15px;
+        margin-bottom: 0.2rem;
+        color: #333;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+    }
+
+    .card-subtitle {
+        font-size: 0.9rem;
+        color: #555;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .btn-sm {
+        font-size: 0.8rem;
+        padding: 0.3rem 0.7rem;
+    }
+
+    .btn-outline-dark {
+        color: #333;
+        border-color: #333;
+    }
+
+        .btn-outline-dark:hover {
+            background-color: #333;
+            color: #fff;
+        }
+
+    .follow-btn {
+        width: auto;
+        height: auto;
+        padding: 0.3rem 0.7rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50px;
+    }
+
+        .follow-btn i {
+            margin-right: 0;
+        }
+
+    .text-secondary {
+        color: #444 !important;
+    }
+
+    .no-results-message {
+        text-align: center;
+        padding: 20px;
+        font-style: italic;
+        color: #777;
+        width: 100%;
+    }
+
+    .card-body {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-top: 1.5rem;
+        padding-bottom: 1.5rem;
+    }
+
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+
+                 $("#searchInput").on("input", function () {
+            const searchTerm = $(this).val().toLowerCase();
+            let hasResults = false;
+
+            $(".usuario-item").each(function () {
+                const userName = $(this).find(".card-title").text().toLowerCase();
+                if (userName.includes(searchTerm)) {
+                    $(this).removeClass('hidden').addClass('visible'); // Tarjetas visibles
+                    hasResults = true;
+                } else {
+                    $(this).removeClass('visible').addClass('hidden'); // Tarjetas ocultas
+                }
+            });
+
+            // Mostrar un mensaje si no hay resultados
+            if (!hasResults) {
+                if ($("#noResultsMessage").length === 0) {
+                    $("#usersContainer").append('<div id="noResultsMessage" class="no-results-message">No se encontraron usuarios.</div>');
+                }
+            } else {
+                $("#noResultsMessage").remove();
+            }
+        });
+
+        // Añadir SweetAlert al click en cualquier botón de seguimiento
+        $(".follow-btn").click(function (e) {
+            e.preventDefault(); // Prevenir el envío del formulario inmediatamente
+            const button = $(this);
+            const userId = button.closest("form").find("input[name='seguidoId']").val(); // Obtener el ID del usuario
+            const userName = button.closest(".card-body").find(".card-title").text().trim(); // Obtener el nombre del usuario
+
+            let isFollowing = button.hasClass('btn-outline-danger'); // Verificar si es "Dejar de seguir"
+
+            Swal.fire({
+                title: isFollowing ? '¿Seguro que quieres dejar de seguir a este usuario?' : '¿Quieres seguir a este usuario?',
+                text: `Estás a punto de ${isFollowing ? 'dejar de seguir' : 'seguir'} a ${userName}.`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: isFollowing ? 'Sí, dejar de seguir' : 'Sí, seguir',
+                cancelButtonText: 'No, cancelar',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Si el usuario confirma, enviamos el formulario
+                    button.closest("form").submit();
+                }
+            });
+        });
+    });
+</script>

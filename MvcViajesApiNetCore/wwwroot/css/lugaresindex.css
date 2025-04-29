@@ -1,0 +1,111 @@
+﻿/* Estilos adicionales */
+.card-custom {
+    width: 280px;
+    background-color: #f8f9fa;
+    border: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.photo {
+    height: 200px;
+    overflow: hidden;
+}
+
+    .photo img {
+        height: 100%;
+        width: 100%;
+        object-fit: cover;
+    }
+
+.photos {
+    width: 90px;
+    height: 30px;
+    background-color: #E74C3C;
+    color: white;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding-left: 10px;
+    font-size: 16px;
+}
+
+.txt4 {
+    font-size: 18px;
+    margin-bottom: 5px;
+}
+
+.txt5 {
+    color: #E74C3C;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.txt2 {
+    font-size: 12px;
+}
+
+.footer {
+    background-color: transparent;
+    border-top: 1px solid #eee;
+    padding-top: 10px;
+}
+
+.heart-link {
+    cursor: pointer;
+}
+
+.like {
+    float: right;
+    font-size: 14px;
+    color: #333333;
+}
+
+.fa-gratipay {
+    margin-right: 5px;
+    transition: 0.5s;
+}
+
+    .fa-gratipay:hover {
+        color: #E74C3C;
+    }
+
+.txt3 {
+    color: gray;
+    font-size: 10px;
+}
+
+.comments {
+    float: right;
+    cursor: pointer;
+}
+
+.fa-clock, .fa-comments {
+    margin-right: 5px;
+}
+
+.red-heart {
+    color: #E74C3C;
+}
+
+.small-logo {
+    width: 20px;
+    height: auto;
+}
+
+.speech-bubble {
+    border-radius: 20px;
+    padding: 8px 15px;
+    border: 1px solid #ccc;
+    position: relative;
+}
+
+    .speech-bubble::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        right: -10px;
+        transform: translateY(-50%);
+        border-width: 10px 0 10px 10px;
+        border-style: solid;
+        border-color: transparent transparent transparent #ccc;
+    }

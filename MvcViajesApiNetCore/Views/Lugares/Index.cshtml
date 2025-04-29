@@ -1,0 +1,403 @@
+﻿@model List<Lugar>
+
+@{
+    ViewData["Title"] = "Lugares de Interés";
+    Layout = "_Layout";
+    string defaultImageUrl = "https://img.freepik.com/foto-gratis/angulo-bosque-3d-arboles-ro0cas_23-2150800507.jpg";
+    var yaEsFavorito = TempData["YaEsFavorito"] as bool?;
+    var lugarFavoritoId = TempData["LugarFavoritoId"] as int?;
+    var agregadoAFavoritos = TempData["AgregadoAFavoritos"] as bool?;
+}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="~/css/lugaresindex.css" rel="stylesheet" />
+
+<div class="container mt-5">
+    <!-- Header Section -->
+    <div class="header-section mb-5">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h1 class="fw-bold text-primary">Lugares de Interés</h1>
+                <p class="text-muted">Descubre destinos fascinantes para tu próxima aventura</p>
+            </div>
+            <div class="col-md-6">
+                <div class="search-container">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="fas fa-search text-muted"></i>
+                        </span>
+                        <input type="text" class="form-control border-start-0 shadow-none"
+                               placeholder="Buscar destinos..." id="searchInput">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Lugares Públicos -->
+    <div class="card border-0 shadow-sm mb-5 category-card">
+        <div class="card-header bg-white border-0 py-3">
+            <button class="category-toggle w-100 text-start d-flex justify-content-between align-items-center" id="togglePublicPlaces">
+                <div><i class="fas fa-landmark text-primary me-2"></i><span class="fw-bold fs-5">Lugares Públicos</span></div>
+                <i class="fas fa-chevron-down transition-icon" id="publicPlacesArrow"></i>
+            </button>
+        </div>
+        <div class="card-body py-4" id="publicPlacesContainer">
+            <div class="row g-4">
+                @foreach (var lugar in Model.Where(l => l.Tipo.Trim().ToLower() == "publico"))
+                {
+                    <div class="col-md-6 col-lg-4 col-xl-3 lugar-item">
+                        <div class="card h-100 border-0 shadow-sm hover-card">
+                            <div class="lugar-image-container">
+                                <img src="@(string.IsNullOrEmpty(lugar.Imagen)? defaultImageUrl: lugar.Imagen)" alt="@lugar.Nombre" class="card-img-top lugar-image" onerror="this.src='@defaultImageUrl';" />
+                                <div class="lugar-overlay"><span class="badge bg-primary">Público</span></div>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title mb-1 fw-bold text-primary">@lugar.Nombre</h5>
+                                <p class="card-subtitle mb-2 text-muted"><i class="fas fa-map-marker-alt me-1"></i>@lugar.Ubicacion</p>
+                                <p class="card-text lugar-description">@lugar.Descripcion</p>
+                            </div>
+                            <div class="card-footer bg-white border-0 pt-0">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted"><i class="far fa-clock me-1"></i>@lugar.Horario</small>
+                                    <a asp-controller="Lugares" asp-action="Details" asp-route-idlugar="@lugar.IdLugar" class="btn btn-sm btn-outline-primary rounded-pill px-3">Ver más</a>
+                                    @if (ViewBag.IdsFavoritos != null && ((List<int>)ViewBag.IdsFavoritos).Contains(lugar.IdLugar))
+                                    {
+                                        <!-- Lugar ya en favoritos -->
+                                        <form asp-controller="Lugares" asp-action="DeleteFavorito" method="post" class="ms-2">
+                                            <input type="hidden" name="idUsuario" value="@User.FindFirst("IdUsuario")?.Value" />
+                                            <input type="hidden" name="idLugar" value="@lugar.IdLugar" />
+                                            <button type="submit" class="btn btn-outline-warning rounded-pill favorite-btn btn-sm" title="Eliminar de Favoritos">
+                                                <i class="fas fa-bookmark"></i> <!-- ícono de bookmark lleno -->
+                                            </button>
+
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <!-- Lugar NO en favoritos -->
+                                        <form asp-controller="Lugares" asp-action="AddToFavoritos" method="post" class="ms-2">
+                                            <input type="hidden" name="idLugar" value="@lugar.IdLugar" />
+                                            <button type="submit" class="btn btn-outline-dark rounded-pill favorite-btn btn-sm" title="Agregar a Favoritos">
+                                                <i class="far fa-bookmark"></i> <!-- ícono de bookmark vacío -->
+                                            </button>
+                                        </form>
+                                    }
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Lugares Privados -->
+    <div class="card border-0 shadow-sm mb-5 category-card">
+        <div class="card-header bg-white border-0 py-3">
+            <button class="category-toggle w-100 text-start d-flex justify-content-between align-items-center" id="togglePrivatePlaces">
+                <div><i class="fas fa-key text-primary me-2"></i><span class="fw-bold fs-5">Lugares Privados</span></div>
+                <i class="fas fa-chevron-down transition-icon" id="privatePlacesArrow"></i>
+            </button>
+        </div>
+        <div class="card-body py-4" id="privatePlacesContainer">
+            <div class="row g-4">
+                @foreach (var lugar in Model.Where(l => l.Tipo.Trim().ToLower() == "privado"))
+                {
+                    <div class="col-md-6 col-lg-4 col-xl-3 lugar-item">
+                        <div class="card h-100 border-0 shadow-sm hover-card">
+                            <div class="lugar-image-container">
+                                <img src="@(string.IsNullOrEmpty(lugar.Imagen)? defaultImageUrl: lugar.Imagen)" alt="@lugar.Nombre" class="card-img-top lugar-image" onerror="this.src='@defaultImageUrl';" />
+                                <div class="lugar-overlay"><span class="badge bg-secondary">Privado</span></div>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title mb-1 fw-bold text-primary">@lugar.Nombre</h5>
+                                <p class="card-subtitle mb-2 text-muted"><i class="fas fa-map-marker-alt me-1"></i>@lugar.Ubicacion</p>
+                                <p class="card-text lugar-description">@lugar.Descripcion</p>
+                            </div>
+                            <div class="card-footer bg-white border-0 pt-0">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted"><i class="far fa-clock me-1"></i>@lugar.Horario</small>
+                                    <a asp-controller="Lugares" asp-action="Details" asp-route-idlugar="@lugar.IdLugar" class="btn btn-sm btn-outline-primary rounded-pill px-3">Ver más</a>
+                                    @if (ViewBag.IdsFavoritos != null && ((List<int>)ViewBag.IdsFavoritos).Contains(lugar.IdLugar))
+                                    {
+                                        <!-- Lugar ya en favoritos -->
+                                        <form asp-controller="Lugares" asp-action="DeleteFavorito" method="post" class="ms-2">
+                                            <input type="hidden" name="idUsuario" value="@User.FindFirst("IdUsuario")?.Value" />
+                                            <input type="hidden" name="idLugar" value="@lugar.IdLugar" />
+                                            <button type="submit" class="btn btn-outline-warning rounded-pill favorite-btn btn-sm" title="Eliminar de Favoritos">
+                                                <i class="fas fa-bookmark"></i> <!-- ícono de bookmark lleno -->
+                                            </button>
+
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <!-- Lugar NO en favoritos -->
+                                        <form asp-controller="Lugares" asp-action="AddToFavoritos" method="post" class="ms-2">
+                                            <input type="hidden" name="idLugar" value="@lugar.IdLugar" />
+                                            <button type="submit" class="btn btn-outline-dark rounded-pill favorite-btn btn-sm" title="Agregar a Favoritos">
+                                                <i class="far fa-bookmark"></i> <!-- ícono de bookmark vacío -->
+                                            </button>
+                                        </form>
+                                    }
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+@* @if (yaEsFavorito.HasValue && yaEsFavorito.Value)
+{
+    <div class="alert alert-info">
+        Ya has añadido a favoritos el lugar con ID @lugarFavoritoId.
+    </div>
+}
+@if (agregadoAFavoritos.HasValue && agregadoAFavoritos.Value)
+{
+    <div class="alert alert-success">
+        El lugar con ID @lugarFavoritoId ha sido añadido a favoritos.
+    </div>
+} *@
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .header-section {
+        position: relative;
+    }
+
+    .search-container {
+        max-width: 400px;
+        margin-left: auto;
+    }
+
+    .category-card {
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .category-toggle {
+        background: none;
+        border: none;
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        color: #212529;
+    }
+
+        .category-toggle:hover {
+            color: #0d6efd;
+        }
+
+    .transition-icon {
+        transition: transform 0.3s ease;
+    }
+
+    .lugar-item {
+        transition: transform 0.3s ease;
+    }
+
+    .hover-card {
+        border-radius: 10px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+        .hover-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+        }
+
+    .lugar-image-container {
+        position: relative;
+        height: 180px;
+        overflow: hidden;
+    }
+
+    .lugar-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .hover-card:hover .lugar-image {
+        transform: scale(1.05);
+    }
+
+    .lugar-overlay {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+    }
+
+    .btn-favorite {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: white;
+        border: none;
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .btn-favorite i {
+            font-size: 18px;
+            color: #6c757d;
+            transition: all 0.3s ease;
+        }
+
+        .btn-favorite:hover i {
+            color: #0d6efd;
+        }
+
+        .btn-favorite.active i {
+            color: #0d6efd;
+            font-weight: 900;
+        }
+
+    .lugar-description {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+    /* Estilo para el botón de favoritos */
+    .favorite-btn {
+        font-size: 24px; /* Aumentar el tamaño del ícono */
+        width: 50px; /* Aumentar el tamaño del botón */
+        height: 50px; /* Aumentar el tamaño del botón */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        /* Botón cuando no está en favoritos (color negro) */
+        .favorite-btn.btn-outline-dark {
+            border-color: #000;
+            color: #000;
+        }
+
+            /* Cambiar color del ícono cuando no está en favoritos */
+            .favorite-btn.btn-outline-dark i {
+                color: #000;
+            }
+
+        /* Botón cuando está en favoritos (color amarillo más brillante) */
+        /* Botón cuando está en favoritos (color naranja) */
+        .favorite-btn.btn-outline-warning {
+            border-color: #fd7e14;
+            color: #fd7e14;
+        }
+
+            /* Cambiar color del ícono cuando está en favoritos */
+            .favorite-btn.btn-outline-warning i {
+                color: #fd7e14;
+            }
+
+
+        /* Efecto al pasar el ratón */
+        .favorite-btn:hover {
+            transform: scale(1.1);
+        }
+
+</style>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+        $(document).ready(function () {
+            // Toggle for Public Places
+            $('#togglePublicPlaces').click(function () {
+                $('#publicPlacesContainer').slideToggle();
+                $('#publicPlacesArrow').toggleClass('fa-chevron-down fa-chevron-up');
+            });
+            // Toggle Privados
+            $('#togglePrivatePlaces').click(function () {
+                $('#privatePlacesContainer').slideToggle();
+                $('#privatePlacesArrow').toggleClass('fa-chevron-down fa-chevron-up');
+            });
+            // Search
+            $('#searchInput').on('input', function () {
+                var term = $(this).val().toLowerCase();
+                $('.lugar-item').each(function () {
+                    var name = $(this).find('.card-title').text().toLowerCase();
+                    $(this).toggle(name.indexOf(term) > -1);
+                });
+            });
+               // Favoritos
+    $('.favorite-btn').click(function (e) {
+        e.preventDefault();
+        var btn = $(this),
+            form = btn.closest('form'),
+            name = btn.closest('.card').find('.card-title').text().trim(),
+            isFav = btn.hasClass('btn-outline-warning');
+
+        Swal.fire({
+            title: isFav ? '¿Eliminar de favoritos?' : '¿Agregar a favoritos?',
+            text: `Vas a ${isFav ? 'eliminar' : 'agregar'} "${name}".`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: isFav ? 'Eliminar' : 'Agregar',
+            cancelButtonText: 'Cancelar',
+            reverseButtons: true
+        }).then(function (res) {
+            if (res.isConfirmed) {
+                form.submit();
+            }
+        });
+    });
+
+
+            // Notification system (example)
+            function showNotification(message) {
+                var notification = $('<div class="notification">' + message + '</div>');
+                $('body').append(notification);
+
+                notification.css({
+                    position: 'fixed',
+                    bottom: '20px',
+                    right: '20px',
+                    zIndex: 9999,
+                    opacity: 0,
+                    transform: 'translateY(20px)'
+                });
+
+                setTimeout(function () {
+                    notification.css({
+                        transition: 'all 0.3s ease',
+                        opacity: 1,
+                        transform: 'translateY(0)'
+                    });
+                }, 10);
+
+                setTimeout(function () {
+                    notification.css({
+                        opacity: 0,
+                        transform: 'translateY(20px)'
+                    });
+                    setTimeout(function () {
+                        notification.remove();
+                    }, 300);
+                }, 3000);
+            }
+        });
+</script>

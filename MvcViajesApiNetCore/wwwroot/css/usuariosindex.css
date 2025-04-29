@@ -1,0 +1,21 @@
+﻿.card-custom {
+    border: none;
+    background-color: #f8f9fa;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.card-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.card-footer {
+    padding-top: 10px;
+}
+
+.search-input {
+    max-width: 250px;
+}

@@ -1,0 +1,362 @@
+﻿@using System.Security.Claims
+@model List<Comentario>
+
+@{
+    int idusuario = ViewData["IdUsuarioActual"] != null
+        ? Convert.ToInt32(ViewData["IdUsuarioActual"])
+        : -1; 
+}
+
+<div class="comentarios-container">
+    @if (Model != null && Model.Count > 0)
+    {
+        @foreach (var comentario in Model)
+        {
+            <div class="comment-card" data-comentario-id="@comentario.IdComentario" data-lugar-id="@comentario.IdLugar" data-usuario-id="@comentario.IdUsuario">
+                <div class="comment-header">
+                    <div class="user-info">
+                        <img src="https://img.freepik.com/psd-gratis/ilustracion-3d-avatar-o-perfil-humano_23-2150671116.jpg" alt="Avatar" class="comment-avatar" />
+                        <div class="user-details">
+                            <h5 class="user-name">@comentario.NombreUsuario</h5>
+                            <span class="comment-date">@comentario.FechaComentario.ToString("dd MMM, HH:mm")</span>
+                        </div>
+                    </div>
+                    @if (User.Identity.IsAuthenticated && comentario.IdUsuario == idusuario)
+                    {
+                        <div class="comment-actions">
+                            @* <button class="btn-action editar-comentario" title="EditComment" data-comentario-texto="@comentario.Comentarios">
+                                <i class="fas fa-edit"></i>
+                            </button> *@
+                           
+                            <button class="btn-action eliminar-comentario" title="DeleteComment">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    }
+                </div>
+                <div class="comment-body">
+                    <p class="comment-text">@comentario.Comentarios</p>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="no-comments">
+            <i class="far fa-comment-dots"></i>
+            <p>No hay comentarios disponibles.</p>
+            <small>¡Sé el primero en comentar!</small>
+        </div>
+    }
+</div>
+
+
+<style>
+    :root {
+        --primary-color: #2c6e49;
+        --secondary-color: #4d908e;
+        --text-color: #333;
+        --light-bg: #f8f9fa;
+        --border-radius: 10px;
+        --box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .comentarios-container {
+        max-width: 100%;
+        padding: 10px 0;
+    }
+
+    .comment-card {
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        margin-bottom: 16px;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .comment-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+    .comment-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        background: linear-gradient(to right, var(--primary-color), var(--secondary-color), var(--primary-color));
+        background-size: 200% 100%;
+        background-position: right bottom;
+        transition: background-position 0.5s ease;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .comment-card:hover .comment-header {
+        background-position: left bottom;
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+    }
+
+    .comment-avatar {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid white;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    .user-details {
+        margin-left: 12px;
+    }
+
+    .user-name {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 600;
+        color: white;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+    }
+
+    .comment-date {
+        font-size: 12px;
+        color: rgba(255,255,255,0.85);
+    }
+
+    .comment-actions {
+        display: flex;
+        align-items: center;
+    }
+
+    .btn-action {
+        background: rgba(255,255,255,0.15);
+        border: none;
+        cursor: pointer;
+        padding: 6px;
+        border-radius: 50%;
+        transition: all 0.2s;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 5px; /* Espacio entre los botones */
+    }
+
+        .btn-action:hover {
+            background-color: rgba(220, 53, 69, 0.2);
+            transform: scale(1.1);
+        }
+
+        .btn-action i {
+            font-size: 15px;
+            color: white;
+        }
+
+    .comment-body {
+        padding: 14px 16px;
+    }
+
+    .comment-text {
+        margin: 0;
+        font-size: 14px;
+        line-height: 1.5;
+        color: var(--text-color);
+    }
+
+    .no-comments {
+        text-align: center;
+        padding: 30px 20px;
+        color: #777;
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        border: 1px dashed #ddd;
+    }
+
+        .no-comments i {
+            font-size: 36px;
+            margin-bottom: 12px;
+            color: var(--secondary-color);
+        }
+
+        .no-comments p {
+            font-size: 16px;
+            margin-bottom: 6px;
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .no-comments small {
+            font-size: 13px;
+            color: var(--secondary-color);
+        }
+
+    /* Scrollbar styles */
+    .comments-list::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .comments-list::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    .comments-list::-webkit-scrollbar-thumb {
+        background: var(--secondary-color);
+        border-radius: 10px;
+    }
+
+        .comments-list::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-color);
+        }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<script>
+    $(document).ready(function() {
+        $(document).on('click', '.eliminar-comentario', function(e) {
+            e.preventDefault();
+            var comentarioCard = $(this).closest('.comment-card');
+            var comentarioId = comentarioCard.data('comentario-id');
+            var lugarId = comentarioCard.data('lugar-id');
+
+            Swal.fire({
+                title: '¿Eliminar comentario?',
+                text: 'Esta acción no se puede deshacer',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Eliminar',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#dc3545', 
+                cancelButtonColor: '#6c757d',
+                reverseButtons: true,
+                borderRadius: 10,
+                focusCancel: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Eliminando...',
+                        text: 'Por favor espera',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    $.ajax({
+                        url: '/Lugares/DeleteComment',
+                        type: 'POST',
+                        data: { idComentario: comentarioId, idLugar: lugarId },
+                        success: function() {
+                            comentarioCard.animate({
+                                opacity: 0,
+                                height: 0,
+                                marginBottom: 0
+                            }, 300, function() {
+                                $(this).remove();
+
+                                Swal.fire({
+                                    title: '¡Comentario eliminado!',
+                                    text: 'El comentario ha sido eliminado con éxito',
+                                    icon: 'success',
+                                    confirmButtonColor: '#2c6e49',
+                                    timer: 2000,
+                                    timerProgressBar: true
+                                });
+
+                                if ($('.comment-card').length === 0) {
+                                    $('.comentarios-container').html(`
+                                        <div class="no-comments">
+                                            <i class="far fa-comment-dots"></i>
+                                            <p>No hay comentarios disponibles.</p>
+                                            <small>¡Sé el primero en comentar!</small>
+                                        </div>
+                                    `);
+                                }
+                            });
+                        },
+                        error: function() {
+                            Swal.fire({
+                                title: 'Error',
+                                text: 'No se pudo eliminar el comentario. Intenta de nuevo más tarde',
+                                icon: 'error',
+                                confirmButtonColor: '#dc3545'
+                            });
+                        }
+                    });
+                }
+            });
+        });
+
+           $(document).on('click', '.editar-comentario', function(e) {
+               e.preventDefault();
+               var comentarioCard = $(this).closest('.comment-card');
+               var comentarioId = comentarioCard.data('comentario-id');
+               var lugarId = comentarioCard.data('lugar-id'); 
+               var comentarioTexto = $(this).data('comentario-texto');
+
+               Swal.fire({
+                   title: 'Editar Comentario',
+                   html: `<textarea id="swal-input-comentario" class="swal2-input" style="display: block;">${comentarioTexto}</textarea>`,
+                   showCancelButton: true,
+                   confirmButtonText: 'Guardar Cambios',
+                   cancelButtonText: 'Cancelar',
+                   confirmButtonColor: '#2c6e49',
+                   cancelButtonColor: '#6c757d',
+                   preConfirm: () => {
+                       const nuevoComentario = Swal.getPopup().querySelector('#swal-input-comentario').value;
+                       if (!nuevoComentario) {
+                           Swal.showValidationMessage(`Por favor, introduce un comentario`);
+                       }
+                       return { nuevoComentario: nuevoComentario };
+                   }
+               }).then((result) => {
+                   if (result.isConfirmed) {
+                       Swal.fire({
+                           title: 'Guardando...',
+                           text: 'Por favor espera',
+                           allowOutsideClick: false,
+                           didOpen: () => {
+                               Swal.showLoading();
+                           }
+                       });
+
+                       $.ajax({
+                           url: '/Lugares/EditComment/' + lugarId,
+                           type: 'POST',
+                           data: {
+                                idComentario: comentarioId,
+                                comentario: result.value.nuevoComentario
+                           },
+                           success: function(response) {
+                               Swal.fire({
+                                   title: '¡Comentario Editado!',
+                                   text: 'El comentario ha sido editado con éxito.',
+                                   icon: 'success',
+                                   confirmButtonColor: '#2c6e49',
+                                   timer: 2000,
+                                   timerProgressBar: true
+                               }).then(() => {
+                                   window.location.reload(); 
+                               });
+                           },
+                           error: function(error) {
+                               Swal.fire({
+                                   title: 'Error',
+                                   text: 'No se pudo editar el comentario. Intenta de nuevo más tarde.',
+                                   icon: 'error',
+                                   confirmButtonColor: '#dc3545'
+                               });
+                           }
+                       });
+                   }
+               });
+           });
+       });
+</script>

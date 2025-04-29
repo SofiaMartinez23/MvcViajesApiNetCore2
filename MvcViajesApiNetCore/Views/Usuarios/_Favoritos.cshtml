@@ -1,0 +1,337 @@
+﻿@model List<LugarFavorito>
+@{
+    string defaultImageUrl = "https://img.freepik.com/foto-gratis/angulo-bosque-3d-arboles-rocas_23-2150800507.jpg";
+
+   
+}
+
+<div class="container py-5">
+    @if (Model == null || !Model.Any())
+    {
+        <!-- No Favorite Places Available Message -->
+        <div class="no-places-container">
+            <div class="card shadow border-0">
+                <div class="card-body text-center py-5">
+                    <div class="empty-illustration mb-4">
+                        <i class="fas fa-heart fa-4x text-secondary"></i>
+                    </div>
+                    <h3 class="fw-bold text-primary">No tienes lugares favoritos aún</h3>
+                    <p class="text-secondary mb-4">Explora los lugares disponibles y marca tus favoritos para verlos aquí.</p>
+                    <a asp-controller="Lugares" asp-action="Index" class="btn btn-primary">
+                        <i class="fas fa-map-marked-alt me-2"></i>Explorar lugares
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="placesContainer">
+            @foreach (var lugar in Model)
+            {
+                <div class="col">
+                    <div class="card lugar-card shadow h-100">
+                        <div class="photo-container position-relative overflow-hidden">
+                            <img src="@(string.IsNullOrEmpty(lugar.ImagenLugar) ? defaultImageUrl : lugar.ImagenLugar)"
+                                    alt="@lugar.NombreLugar" class="card-img-top" onerror="this.src='@defaultImageUrl';" />
+                            <div class="overlay-badge">
+                                <span class="badge bg-light text-dark"><i class="fas fa-camera me-1"></i> Photos</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">@lugar.NombreLugar</h5>
+                            <p class="card-location"><i class="fas fa-map-marker-alt location-icon"></i> @lugar.UbicacionLugar</p>
+                            <p class="card-description">@lugar.DescripcionLugar</p>
+                        </div>
+                        <div class="card-footer d-flex justify-content-between align-items-center bg-white">
+                            <a asp-controller="Lugares" asp-action="Details" asp-route-idlugar="@lugar.IdLugar" class="btn btn-primary btn-sm">Leer más</a>
+                            
+                            <a href="#" class="heart-link"
+                               data-id="@lugar.IdLugar"
+                               data-name="@lugar.NombreLugar"
+                               data-usuario-id="@lugar.IdUsuario"> @* <-- Added data-usuario-id here *@
+                                <img src="https://icon-icons.com/icons2/3870/PNG/512/save_remove_icon_243831.png" alt="Delete" class="heart-icon" />
+                            </a>
+                        </div>
+                        <div class="date-badge">
+                            <small><i class="far fa-calendar-alt me-1"></i> @lugar.FechaDeVisitaLugar</small>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<!-- SweetAlert2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.27/dist/sweetalert2.min.css" rel="stylesheet">
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.27/dist/sweetalert2.min.js"></script>
+
+@* --- Script to expose User ID from ViewData to JavaScript (Keeping it as requested, but now redundant for delete) --- *@
+@*
+<script>
+    // This variable is now redundant for the delete functionality as the user ID
+    // is read directly from the clicked link's data attribute.
+    // It's kept here only if other JS logic might need a global user ID.
+    var userIdFromViewData = @(idUsuarioFromViewData.HasValue ? idUsuarioFromViewData.Value.ToString() : "null");
+</script>
+*@
+@* -------------------------------------------------------------------------------------------------------------- *@
+
+<script>
+    $(document).ready(function() {
+        $('.heart-link').click(function(e) {
+            e.preventDefault();
+
+            // Get idLugar and idUsuario directly from the clicked link's data attributes
+            var idLugar = $(this).data('id');
+            var idUsuario = $(this).data('usuario-id'); // <-- Read idUsuario from the data attribute
+            var lugarName = $(this).data('name');
+            var card = $(this).closest('.col'); // Get the column div
+
+            // Basic check if IDs are available (should be if data attributes are set correctly)
+             if (idLugar === undefined || idUsuario === undefined) {
+                 Swal.fire('Error', 'No se pudo obtener la información necesaria para eliminar.', 'error');
+                 console.error('Missing data attributes on heart-link:', $(this).data());
+                 return; // Stop execution if data is missing
+             }
+
+
+            Swal.fire({
+                title: '¿Eliminar de favoritos?',
+                text: `¿Estás seguro de que deseas eliminar "${lugarName}" de tus favoritos?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Eliminando...',
+                        text: 'Por favor espera',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    // --- AJAX call using IDs from the link's data attributes ---
+                    $.post('/Usuarios/DeleteFavorito', {
+                         idUsuario: idUsuario, // <-- Use idUsuario read from the link's data attribute
+                         idLugar: idLugar
+                    }, function () {
+                        Swal.close();
+                        // Remove the parent column element
+                        card.fadeOut(300, function() {
+                            $(this).remove();
+                            Swal.fire({
+                                icon: 'success',
+                                title: '¡Eliminado!',
+                                text: 'El lugar ha sido eliminado de tus favoritos.',
+                                timer: 2000,
+                                timerProgressBar: true,
+                                showConfirmButton: false
+                            });
+                             // Check if no more favorite place cards are left
+                             if ($('#placesContainer .col').length === 0) {
+                                location.reload();
+                            }
+                        });
+                    }).fail(function() {
+                        Swal.close();
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'No se pudo eliminar el favorito. Intenta nuevamente.'
+                        });
+                    });
+                }
+            });
+        });
+    });
+</script>
+
+<style>
+    /* ... your existing styles ... */
+</style>
+
+<style>
+    :root {
+        --primary-color: #4a6fa5;
+        --secondary-color: #6c8fb8;
+        --accent-color: #ff6b6b;
+        --text-primary: #333333;
+        --text-secondary: #666666;
+        --light-bg: #f8f9fa;
+        --card-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        --hover-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        --transition-speed: 0.3s;
+    }
+
+    body {
+        background-color: var(--light-bg);
+        font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    }
+
+    .container {
+        max-width: 1200px;
+    }
+
+    /* No Places Message Styles */
+    .no-places-container {
+        max-width: 600px;
+        margin: 3rem auto;
+    }
+
+    .empty-illustration {
+        color: var(--accent-color);
+        opacity: 0.7;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Card Styles */
+    .lugar-card {
+        border: none;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all var(--transition-speed) ease;
+    }
+
+        .lugar-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--hover-shadow);
+        }
+
+    .photo-container {
+        height: 200px;
+    }
+
+    .card-img-top {
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .lugar-card:hover .card-img-top {
+        transform: scale(1.05);
+    }
+
+    .overlay-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        z-index: 2;
+    }
+
+    .badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-weight: 500;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    .card-title {
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: var(--primary-color);
+        margin-bottom: 10px;
+    }
+
+    .card-location {
+        font-size: 0.95rem;
+        color: var(--text-secondary);
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+    }
+
+    .location-icon {
+        color: var(--accent-color);
+        margin-right: 5px;
+    }
+
+    .card-description {
+        font-size: 1rem;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .card-footer {
+        border-top: 1px solid rgba(0,0,0,0.05);
+        padding: 1rem 1.5rem;
+    }
+
+    .btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        border-radius: 30px;
+        padding: 6px 16px;
+        font-weight: 500;
+        transition: all var(--transition-speed) ease;
+    }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+    .heart-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all var(--transition-speed) ease;
+        cursor: pointer;
+    }
+
+        .heart-link:hover {
+            transform: scale(1.1);
+        }
+
+    .heart-icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .date-badge {
+        position: absolute;
+        bottom: 75px;
+        right: 15px;
+        background-color: rgba(255,255,255,0.9);
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    /* SweetAlert Customization */
+    .swal2-popup {
+        border-radius: 15px;
+        font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    }
+
+    .swal2-title {
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+
+    .swal2-html-container {
+        color: var(--text-secondary);
+    }
+
+    .swal2-icon {
+        border-color: var(--accent-color);
+    }
+</style>

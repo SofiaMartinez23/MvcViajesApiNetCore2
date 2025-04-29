@@ -1,0 +1,284 @@
+﻿@model NugetViajesSMG.Models.UsuarioCompletoView
+
+
+
+<section class="vh-100 d-flex align-items-center justify-content-center">
+    <form method="post" class="glass-form" style="max-width: 700px; width: 100%;">
+        <div class="text-center mb-4">
+            <h3 style="color: #92390c" class="mt-3">Registro</h3>
+        </div>
+
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label asp-for="Nombre">Nombre</label>
+                    <input asp-for="Nombre" required class="form-control" />
+                    <span asp-validation-for="Nombre" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Email">Correo Electrónico</label>
+                    <input asp-for="Email" type="email" required class="form-control" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+
+                <div class="form-group">
+                    <label asp-for="Clave">Contraseña</label>
+                    <div class="input-group">
+                        <input asp-for="Clave" type="password" id="claveField" class="form-control" required minlength="8" />
+                        <span class="input-group-text" onclick="togglePassword('claveField', 'toggleClaveIcon')" style="cursor:pointer;">
+                            <i id="toggleClaveIcon" class="bi bi-eye-slash"></i>
+                        </span>
+                    </div>
+                    <span asp-validation-for="Clave" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="ConfirmarClave">Confirmar Contraseña</label>
+                    <div class="input-group">
+                        <input asp-for="ConfirmarClave" type="password" id="confirmarClaveField" class="form-control" required minlength="8" />
+                        <span class="input-group-text" onclick="togglePassword('confirmarClaveField', 'toggleConfirmarClaveIcon')" style="cursor:pointer;">
+                            <i id="toggleConfirmarClaveIcon" class="bi bi-eye-slash"></i>
+                        </span>
+                    </div>
+                    <span asp-validation-for="ConfirmarClave" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label asp-for="Nacionalidad">Nacionalidad</label>
+                    <input asp-for="Nacionalidad" id="nacionalidad" required class="form-control" />
+                    <span asp-validation-for="Nacionalidad" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Edad">Edad</label>
+                    <input asp-for="Edad" id="edad" required class="form-control" />
+                    <span asp-validation-for="Edad" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="PreferenciaViaje">Preferencias de Viaje</label>
+                    <select asp-for="PreferenciaViaje" required class="form-control">
+                        <option value="" selected></option>
+                        <option value="Turístico">Turístico</option>
+                        <option value="Restaurante">Restaurante</option>
+                        <option value="Deporte">Deporte</option>
+                        <option value="Cultura">Cultura</option>
+                        <option value="Naturaleza">Naturaleza</option>
+                        <option value="Comercial">Comercial</option>
+                        <option value="Educativo">Educativo</option>
+                        <option value="Religioso">Religioso</option>
+                        <option value="Salud">Salud</option>
+                        <option value="Empresarial">Empresarial</option>
+                        <option value="Transporte">Transporte</option>
+                        <option value="Entretenimiento">Entretenimiento</option>
+                        <option value="Aventura">Aventura</option>
+                        <option value="Residencial">Residencial</option>
+                        <option value="Cívico">Cívico</option>
+                    </select>
+                    <span asp-validation-for="PreferenciaViaje" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="AvatarUrl">Imagen Perfil</label>
+                    <input asp-for="AvatarUrl" id="edad" required class="form-control" />
+                    <span asp-validation-for="Edad" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn custom-login-btn">Registrarse</button>
+
+        <p style="margin-top: 20px; text-align:center;">
+            ¿Ya tienes una cuenta?
+            <a asp-controller="Managed" asp-action="Login" style="color: #fff; text-decoration: underline;">Inicia sesión aquí</a>
+        </p>
+    </form>
+</section>
+
+<h2>@ViewData["MENSAJE"]</h2>
+
+<!-- Estilos Glassmorphism -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+<style>
+    body {
+        background-image: url('https://i.gifer.com/5Mf2.gif');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        margin: 0;
+        padding: 0;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .glass-background {
+        position: fixed;
+        width: 430px;
+        height: 520px;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 0;
+    }
+
+        .glass-background .shape {
+            height: 200px;
+            width: 200px;
+            position: absolute;
+            border-radius: 50%;
+        }
+
+            .glass-background .shape:first-child {
+                background: linear-gradient(#1845ad, #23a2f6);
+                left: -80px;
+                top: -80px;
+            }
+
+            .glass-background .shape:last-child {
+                background: linear-gradient(to right, #ff512f, #f09819);
+                right: -30px;
+                bottom: -80px;
+            }
+
+    .glass-form {
+        position: relative;
+        z-index: 1;
+        background-color: rgba(0, 0, 0, 0.6); /* Fondo más oscuro */
+        padding: 40px 35px;
+        border-radius: 10px;
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 0 40px rgba(8, 7, 16, 0.6);
+        color: white;
+    }
+
+        .glass-form h3 {
+            font-size: 32px;
+            font-weight: 500;
+        }
+
+        .glass-form label {
+            display: block;
+            margin-top: 20px;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .glass-form input,
+        .glass-form select {
+            display: block;
+            height: 50px;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.07);
+            border-radius: 3px;
+            padding: 0 10px;
+            margin-top: 8px;
+            font-size: 14px;
+            font-weight: 300;
+            color: #fff;
+            border: none;
+        }
+
+            .glass-form input::placeholder {
+                color: #e5e5e5;
+            }
+
+        .glass-form button {
+            margin-top: 30px;
+            width: 100%;
+            background-color: #92390c;
+            color: white;
+            padding: 15px 0;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 5px;
+            cursor: pointer;
+            border: none;
+            transition: background 0.3s ease;
+        }
+
+            .glass-form button:hover {
+                background-color: #7a2e09;
+            }
+
+    .text-danger {
+        color: #ffbaba;
+        font-size: 0.9rem;
+        margin-top: 5px;
+        display: block;
+    }
+
+    .alert-danger {
+        background-color: rgba(255, 0, 0, 0.1);
+        border: 1px solid #f00;
+        color: #f00;
+        text-align: center;
+        padding: 10px;
+        margin-top: 15px;
+        border-radius: 4px;
+    }
+
+    .input-group {
+        background-color: rgba(255, 255, 255, 0.07);
+        border-radius: 3px;
+        overflow: hidden;
+        margin-top: 8px;
+    }
+
+        .input-group .form-control {
+            background-color: transparent !important;
+            border: none;
+            color: white;
+            box-shadow: none;
+        }
+
+    .input-group-text {
+        background-color: transparent;
+        border: none;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        padding: 0 10px;
+    }
+
+    select,
+    select option {
+        color: black !important;
+        background-color: rgba(255, 255, 255, 0.8); /* opcional: mejora contraste */
+    }
+
+</style>
+
+<script>
+    // Función para mostrar/ocultar la contraseña
+    function togglePassword(fieldId, iconId) {
+        const passwordField = document.getElementById(fieldId);
+        const toggleIcon = document.getElementById(iconId);
+
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            toggleIcon.classList.remove('bi-eye-slash');
+            toggleIcon.classList.add('bi-eye');
+        } else {
+            passwordField.type = 'password';
+            toggleIcon.classList.remove('bi-eye');
+            toggleIcon.classList.add('bi-eye-slash');
+        }
+    }
+
+    // Función para verificar que ambas contraseñas coincidan
+    document.querySelector('form').onsubmit = function (e) {
+        const clave = document.getElementById('claveField').value;
+        const confirmarClave = document.getElementById('confirmarClaveField').value;
+
+        if (clave !== confirmarClave) {
+            e.preventDefault(); // Evita que el formulario se envíe
+            alert('Las contraseñas no coinciden.');
+        }
+    };
+</script>
